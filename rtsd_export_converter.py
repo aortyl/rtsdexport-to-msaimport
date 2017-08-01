@@ -105,12 +105,14 @@ else:
 
     writer.writeheader()
 
-    user_name = ''
+    prev_user_name = ''
     students = []
     houses = {}
 
     for row in reader:
-        if user_name != row[' User ID']:
+        new_user_name = row[' User ID'].lower()
+
+        if prev_user_name != new_user_name:
             for student in students:
                 new_row = student.copy()
                 new_row.update(build_parent_dict(houses))
@@ -118,10 +120,14 @@ else:
                 writer.writerow(new_row)
 
             # Track user name
-            user_name = row[' User ID']
+            prev_user_name = new_user_name
             # reset values
             students = []
             houses = {}
+
+        # If we've hit a blank line - lets stop here.
+        if new_user_name == '':
+            break
 
         if row[' Record Type'].strip() == 'S':
             students.append(build_student_record(row))
